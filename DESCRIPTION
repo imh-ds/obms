@@ -1,0 +1,16 @@
+Package: obms
+Type: Package
+Title: Analysis Tools for Organizational Behavior, Marketing, & Strategy Sciences
+Version: 0.1.0
+Author: Hohjin Im
+Maintainer: Hohjin Im <hohjini@uci.edu>
+Description: Analytical toolkit package for organicational behavior, marketing, 
+    and strategy sciences. This package offers tools to run common analyses.
+License: GPL (>= 2)
+Encoding: UTF-8
+Depends:
+    R (>= 4.3.2)
+Imports:
+    dplyr,
+    magrittr
+RoxygenNote: 7.3.1
