@@ -109,7 +109,6 @@
 #'
 #' @export
 naugment <- function(
-    
   data,
   vars = NULL,
   covariates = NULL,
@@ -130,7 +129,6 @@ naugment <- function(
   kurtosis_index_weight = 0.2,
   return_all_mods = FALSE,
   return_accuracy = TRUE
-  
 ) {
   
   # MESSAGES ----------------------------------------------------------------
@@ -176,15 +174,28 @@ naugment <- function(
   
   # -- IF NEED TO FILTER DATA -- #
   
-  if (!is.null(vars) && !is.null(covariates)) {
+  if (!is.null(vars) || !is.null(covariates)) {
     
-    data <- data %>% 
-      dplyr::select(
-        dplyr::all_of(
-          c(covariates,
-            vars)
+    data <- if (!is.null(vars) && is.null(covariates)) {
+      
+      data %>% 
+        dplyr::select(
+          dplyr::all_of(
+            c(vars)
+          )
         )
-      )
+      
+    } else {
+      
+      data %>% 
+        dplyr::select(
+          dplyr::all_of(
+            c(covariates,
+              vars)
+          )
+        )
+      
+    }
     
   }
   
@@ -241,10 +252,13 @@ naugment <- function(
       )
       
       # Get RF imputed data
-      imputed_data <- round(
-        x = missmodel[["data"]],
-        digits = digits
-      )
+      imputed_data <- missmodel[["data"]] %>% 
+        dplyr::mutate(
+          dplyr::across(
+            .cols = c(dplyr::all_of(c(vars))),
+            .fns = function(x) round(x, digits = digits)
+          )
+        )
       
       # Resample as specified
       resample_data <- dplyr::sample_n(
@@ -263,7 +277,7 @@ naugment <- function(
       
       # Create matrix of augmented RF predicted data
       augmented_mat <- lapply(
-        names(data),
+        c(vars),
         function(n) {
           
           # Predict using trained missRanger RF models
@@ -302,6 +316,20 @@ naugment <- function(
         augmented_mat,
         cbind
       )
+      
+      # If variables are specified, then bind with covariates
+      if (!is.null(vars) && length(vars) != length(names(data))) {
+        # Bind columns
+        augmented_df <- noisy_data %>% 
+          dplyr::select(
+            -dplyr::all_of(
+              c(vars)
+            )
+          ) %>% 
+          dplyr::bind_cols(
+            augmented_df
+          )
+      }
       
       # Create noisy augmented data
       noisy_augmented_data <- inject_na(
@@ -365,8 +393,6 @@ naugment <- function(
         aug_vals = aug_metrics[["kurtosis"]],
         org_vals = org_metrics[["kurtosis"]]
       )
-      
-      
       
       
       
