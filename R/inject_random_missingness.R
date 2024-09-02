@@ -46,7 +46,7 @@ inject_na <- function(
         
         # Randomly select n% of the columns to be NA
         row[sample(names,
-                   size = round(prop * ncol(data)))] <- NA
+                   size = round(prop * length(names)))] <- NA
         
         # Return
         return(row)
