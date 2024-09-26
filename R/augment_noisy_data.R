@@ -174,28 +174,37 @@ naugment <- function(
   
   # -- IF NEED TO FILTER DATA -- #
   
-  if (!is.null(vars) || !is.null(covariates)) {
+  # If both vars and covariates are specified
+  if (!is.null(vars) && is.null(covariates)) {
     
-    data <- if (!is.null(vars) && is.null(covariates)) {
-      
-      data %>% 
-        dplyr::select(
-          dplyr::all_of(
-            c(vars)
-          )
+    data <- data %>% 
+      dplyr::select(
+        dplyr::all_of(
+          c(vars)
         )
-      
-    } else {
-      
-      data %>% 
-        dplyr::select(
-          dplyr::all_of(
-            c(covariates,
-              vars)
-          )
+      )
+    
+  }
+  
+  # If only covariates is specified
+  if (is.null(vars) && !is.null(covariates)) {
+    
+    # Update vars to be all non-covariates variables
+    vars <- setdiff(names(data),
+                    covariates)
+    
+  }
+  
+  # If both vars and covariates are specified
+  if (!is.null(vars) && !is.null(covariates)) {
+    
+    data <- data %>% 
+      dplyr::select(
+        dplyr::all_of(
+          c(covariates,
+            vars)
         )
-      
-    }
+      )
     
   }
   
