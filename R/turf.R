@@ -39,7 +39,10 @@ turf_analysis <- function(
     
     # Get Reach proportions
     reach_df <- dplyr::summarise(df_reach, 
-                                 dplyr::across(dplyr::everything(), mean))
+                                 dplyr::across(
+                                   .cols = dplyr::everything(), 
+                                   .fns = function(x) mean(x,
+                                                           na.rm = TRUE)))
     
     # Get name of max reach col
     max_col <- names(reach_df)[which.max(reach_df)]
@@ -50,7 +53,11 @@ turf_analysis <- function(
     
     # Get Individual Item Reach
     ind_reach <- df %>% 
-      dplyr::summarise(dplyr::across(dplyr::all_of(max_col), mean)) %>% 
+      dplyr::summarise(
+        dplyr::across(
+          .cols = dplyr::all_of(max_col),
+          .fns = function(x) mean(x,
+                                  na.rm = TRUE))) %>% 
       dplyr::pull(max_col)
     ind_n <- ind_reach * nrow(df)
     
@@ -82,8 +89,12 @@ turf_analysis <- function(
   # Get absolute reach of items not contributing
   non_reach <- df %>% 
     dplyr::select(-(base::unique(reach_tab$Item))) %>% 
-    dplyr::summarise(dplyr::across(dplyr::everything(),
-                                   \(x) mean(x)))
+    dplyr::summarise(
+      dplyr::across(
+        .cols = dplyr::everything(),
+        .fns = mean(x, na.rm = TRUE)
+      )
+    )
   
   # Adjust table
   reach_tab_nons <- data.frame(Item = colnames(non_reach),
