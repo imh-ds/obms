@@ -74,7 +74,7 @@ turf_analysis <- function(
       dplyr::filter(!!rlang::sym(max_col) == 0)
     
     # Check if df_reach is empty or no one is reached, if TRUE, break loop.
-    if(nrow(df_reach) == 0 | sum(df_reach) == 0){
+    if(nrow(df_reach) == 0 | sum(df_reach, na.rm = TRUE) == 0){
       # Trim the list to the actual length
       reach_list <- reach_list[seq_len(i)]
       break
@@ -92,7 +92,7 @@ turf_analysis <- function(
     dplyr::summarise(
       dplyr::across(
         .cols = dplyr::everything(),
-        .fns = mean(x, na.rm = TRUE)
+        .fns = function(x) mean(x, na.rm = TRUE)
       )
     )
   
